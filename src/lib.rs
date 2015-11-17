@@ -27,14 +27,13 @@
 //! assert_eq!(hash.get(&42), Some(&"the answer"));
 //! ```
 
-#![feature(hashmap_hasher)]
-#![cfg_attr(test, feature(test))]
-
+#![cfg_attr(nightly, feature(hashmap_hasher))]
 extern crate rand;
 
 mod number_streams;
 
 use std::hash::Hasher;
+#[cfg(nightly)]
 use std::collections::hash_state::HashState;
 use rand::Rng;
 use number_streams::NumberStreams;
@@ -284,6 +283,7 @@ impl Default for RandomXxHashState {
     fn default() -> RandomXxHashState { RandomXxHashState::new() }
 }
 
+#[cfg(nightly)]
 impl HashState for RandomXxHashState {
     type Hasher = XxHash;
 
@@ -294,6 +294,7 @@ impl HashState for RandomXxHashState {
 mod test {
     use std::hash::Hasher;
     use std::collections::HashMap;
+    #[cfg(nightly)]
     use std::collections::hash_state::DefaultState;
     use super::{XxHash,RandomXxHashState};
 
@@ -357,6 +358,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(nightly)]
     fn can_be_used_in_a_hashmap_with_a_default_seed() {
         let mut hash: HashMap<_, _, DefaultState<XxHash>> = Default::default();
         hash.insert(42, "the answer");
@@ -364,6 +366,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(nightly)]
     fn can_be_used_in_a_hashmap_with_a_random_seed() {
         let mut hash: HashMap<_, _, RandomXxHashState> = Default::default();
         hash.insert(42, "the answer");
@@ -371,8 +374,9 @@ mod test {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, nightly))]
 mod bench {
+    #![cfg_attr(nightly, feature(test))]
     extern crate test;
     extern crate fnv;
 
